@@ -3,13 +3,17 @@
 
 void test_insert() {
     auto heap = new fibonacci_heap;
-    heap->insert(2);
-    heap->insert(-45);
-    heap->insert(121);
-    heap->insert(56);
-    heap->insert(13);
-    heap->insert(22);
-    heap->insert(22);
+    heap->push(2);
+    heap->push(-45);
+    heap->push(121);
+    heap->push(56);
+    heap->push(13);
+    heap->push(22);
+    heap->push(22);
+    heap->print();
+    std::cout << std::endl << heap->top() << std::endl;
+    heap->pop();
+    std::cout << std::endl << heap->top() << std::endl;
     heap->print();
 }
 
