@@ -8,6 +8,8 @@ public:
     void push(int val);
     void pop();
     int top();  // TODO template
+    int size();
+    bool empty();
     void print();
 private:
     struct node;

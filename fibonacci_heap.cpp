@@ -66,11 +66,15 @@ void fibonacci_heap::pop() {
     // przeniesienie dzieci elementu min do listy korzeni
     ptr child = min->child;
     if (child != nullptr) {
+        auto last_child = child->left;
+        child = child->left;
+        auto next_child = child->right;
         do {
+            child = next_child;
+            next_child = child->right;
             child->insert_before(min);
             child->parent = nullptr;
-            child = child->right;
-        } while (child != min->child);
+        } while (child != last_child);
     }
     //usunięcie min z listy korzeni
     min->remove_from_list();
@@ -85,6 +89,14 @@ void fibonacci_heap::pop() {
         consolidate();
     }
     node_count--;
+}
+
+int fibonacci_heap::size() {
+    return node_count;
+}
+
+bool fibonacci_heap::empty() {
+    return min == nullptr;
 }
 
 void fibonacci_heap::consolidate() {
