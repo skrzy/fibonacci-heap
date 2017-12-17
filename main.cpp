@@ -5,6 +5,7 @@
 #include <chrono>
 #include "fibonacci_heap.h"
 #include "fibonacci_heap_algorithm.h"
+#include "dijkstra.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -38,9 +39,23 @@ void test_sort() {
     }
 }
 
-int main() {
-//    test_insert();
-//    test_sort();
+void test_decrease() {
+    auto heap = new fibonacci_heap;
+    heap->push(2);
+    heap->push(-45);
+    auto el = heap->push(121);
+    heap->push(56);
+    heap->push(13);
+    heap->push(22);
+    heap->push(22);
+    heap->print();
+    heap->pop();
+    heap->print();
+    heap->decrease(el, 1);
+    heap->print();
+}
+
+void sorting_performance_test() {
 
     const int N = 1000000;
     default_random_engine generator;
@@ -71,7 +86,26 @@ int main() {
     cout << "Fibonacci heap: " << fibonacci_heap_sort_time.count() << endl;
     cout << "Binary heap: " << binary_heap_sort_time.count() << endl;
 
+}
+
+int main() {
+//    test_insert();
+//    test_sort();
+    test_decrease();
+//    sorting_performance_test();
 
 
+    const int N_VERTEXES = 5;
+
+    int edges[] = {
+    //     a      b     c      d      e
+          0,     10,   INF,   INF,     5,    //a
+          INF,   0,      1,   INF,     2,    //b
+          INF,   INF,    0,     4,   INF,    //c
+          7,     INF,    6,     0,   INF,    //d
+          INF,   3,      9,    -2,     0,    //e
+    };
+
+    dijkstra(edges, N_VERTEXES);
     return 0;
 }

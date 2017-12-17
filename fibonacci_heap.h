@@ -3,21 +3,30 @@
 
 #include <cmath>
 
-class fibonacci_heap {
+class fibonacci_heap {  // TODO order
+private:
+    struct node;
+    typedef node* ptr;
 public:
-    void push(int val);
+    class iter {    // TODO inna nazwa ?
+        ptr node;
+    public:
+        iter(ptr node): node(node) {};
+        ptr getNode() {
+            return node;
+        };
+    };
+    iter push(int val);
     void pop();
     int top();  // TODO template
+    bool decrease(iter i, int new_value); // TODO template
     int size();
     bool empty();
     void print();
 private:
-    struct node;
-    typedef node* ptr;
-
     struct node {
         int key;    //TODO template
-        ptr parent; // TODO niepotrzebne?
+        ptr parent;
         ptr left;
         ptr right;
         ptr child;
@@ -38,6 +47,8 @@ private:
     void consolidate();
     void link(ptr child, ptr parent);
     int max_degree();
+    void cut(ptr child, ptr parent);
+    void cascading_cut(ptr node);
     void print(ptr root, int level);
 
     const double GOLDEN_RATIO = (1 + sqrt(5)) / 2;

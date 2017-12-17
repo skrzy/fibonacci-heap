@@ -10,13 +10,21 @@ void fibonacci_heap::node::insert_before(ptr n) {
 }
 
 void fibonacci_heap::node::switch_with(ptr n) {
-    auto tmp_key = this->key;
-    this->key = n->key;
-    n->key = tmp_key;
+    auto tmp_copy = node(*this);
 
-    auto tmp_child = this->child;
+    this->left = n->left != this ? n->left : n;
+    this->right = n->right != this ? n->right : n;
+    this->parent = n->parent;
     this->child = n->child;
-    n->child = tmp_child;
+    this->degree = n->degree;
+
+    n->left = tmp_copy.left != n ? tmp_copy.left : this;
+    n->right = tmp_copy.right != n ? tmp_copy.right : this;
+    n->parent = tmp_copy.parent;
+    n->child = tmp_copy.child;
+    n->degree = tmp_copy.degree;
+
+    // TODO czy powinno być kopiowanie child?
 }
 
 void fibonacci_heap::node::remove_from_list() {
@@ -30,6 +38,7 @@ void fibonacci_heap::node::add_child(ptr n) {
     } else {
         n->insert_before(this->child);
     }
+    n->parent = this;
 }
 
 fibonacci_heap::ptr fibonacci_heap::node::as_list() {
@@ -38,7 +47,7 @@ fibonacci_heap::ptr fibonacci_heap::node::as_list() {
     return this;
 }
 
-void fibonacci_heap::push(int val) {
+fibonacci_heap::iter fibonacci_heap::push(int val) {
     auto new_node = (ptr)new node(val);
 
     if (min == nullptr) {
@@ -51,6 +60,8 @@ void fibonacci_heap::push(int val) {
         }
     }
     node_count++;
+
+    return iter(new_node);
 }
 
 int fibonacci_heap::top() {
@@ -89,6 +100,53 @@ void fibonacci_heap::pop() {
         consolidate();
     }
     node_count--;
+}
+
+bool fibonacci_heap::decrease(iter i, int new_value) {
+    auto node = i.getNode();
+
+    if (new_value > node->key) {
+        return false;
+    }
+
+    node->key = new_value;
+    auto parent = node->parent;
+
+    if (parent != nullptr && node->key < parent->key) {
+        cut(node, parent);
+        cascading_cut(parent);
+    }
+
+    if (node->key < min->key) {
+        min = node;
+    }
+
+    return true;
+}
+
+void fibonacci_heap::cut(ptr child, ptr parent) {
+    if (child->right != child) {
+        parent->child = child->right;
+    } else {
+        parent->child = nullptr;
+    }
+    child->remove_from_list();
+    parent->degree--;
+    child->insert_before(min);  // dodanie do listy korzeni
+    child->parent = nullptr;
+    child->mark = false;
+}
+
+void fibonacci_heap::cascading_cut(ptr node) {
+    auto parent = node->parent;
+    if (parent != nullptr) {
+        if (!node->mark) {
+           node->mark = true;
+        } else {
+            cut(node, parent);
+            cascading_cut(parent);
+        }
+    }
 }
 
 int fibonacci_heap::size() {
@@ -146,7 +204,7 @@ void fibonacci_heap::link(ptr child, ptr parent) {
     child->remove_from_list();
     parent->add_child(child);
     parent->degree++;
-    child->mark = false; //TODO po co?
+    child->mark = false;
 }
 
 int fibonacci_heap::max_degree() {
@@ -155,6 +213,7 @@ int fibonacci_heap::max_degree() {
 
 void fibonacci_heap::print() {
     print(min, 0);
+    std::cout << std::endl;
 }
 
 void fibonacci_heap::print(ptr root, int level) {
