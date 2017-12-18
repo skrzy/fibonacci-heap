@@ -3,8 +3,8 @@
 
 #include "fibonacci_heap.h"
 
-fibonacci_heap make_fibonacci_heap(int* begin, int* end) {
-    fibonacci_heap heap;
+fibonacci_heap<int> make_fibonacci_heap(int* begin, int* end) {
+    fibonacci_heap<int> heap;
     while (begin != end) {
         heap.push(*begin);
         begin++;
@@ -12,7 +12,7 @@ fibonacci_heap make_fibonacci_heap(int* begin, int* end) {
     return heap;
 }
 
-int* sort_fibonacci_heap(fibonacci_heap& heap) {
+int* sort_fibonacci_heap(fibonacci_heap<int>& heap) {
     int * result = new int[heap.size()];
     int index = 0;
 
