@@ -8,8 +8,9 @@ class fibonacci_heap {
 private:
     struct node;
     typedef node* ptr;
+    const Compare& comparator;
 public:
-    class iter {    // TODO inna nazwa ?
+    class iter {
         ptr node;
     public:
         iter() {}
@@ -28,6 +29,9 @@ public:
     int size();
     bool empty();
     void print();
+
+    fibonacci_heap(const Compare &comparator = Compare());
+
 private:
     struct node {
         T key;
@@ -40,7 +44,6 @@ private:
 
         node(T key): key(key), parent(nullptr), child(nullptr), degree(0), mark(false) {}
         void insert_before(ptr n);
-        void switch_with(ptr n);
         void remove_from_list();
         void add_child(ptr n);
         ptr as_list();
@@ -66,25 +69,6 @@ void fibonacci_heap<T, Compare>::node::insert_before(ptr n) {
     this->right = n;
     n->left->right = this;
     n->left = this;
-}
-
-template <typename T, typename Compare>
-void fibonacci_heap<T, Compare>::node::switch_with(ptr n) {
-    auto tmp_copy = node(*this);
-
-    this->left = n->left != this ? n->left : n;
-    this->right = n->right != this ? n->right : n;
-    this->parent = n->parent;
-    this->child = n->child;
-    this->degree = n->degree;
-
-    n->left = tmp_copy.left != n ? tmp_copy.left : this;
-    n->right = tmp_copy.right != n ? tmp_copy.right : this;
-    n->parent = tmp_copy.parent;
-    n->child = tmp_copy.child;
-    n->degree = tmp_copy.degree;
-
-    // TODO czy powinno być kopiowanie child?
 }
 
 template <typename T, typename Compare>
@@ -119,7 +103,7 @@ typename fibonacci_heap<T, Compare>::iter fibonacci_heap<T, Compare>::push(T val
         min = new_node->as_list();
     } else {
         new_node->insert_before(min);     // wstawienie do listy korzeni, przed elementem min (miejsce jest dowolne)
-        if (new_node->key < min->key) {
+        if (comparator(new_node->key, min->key)) {
             min = new_node;
         }
     }
@@ -157,12 +141,9 @@ void fibonacci_heap<T, Compare>::pop() {
     min->remove_from_list();
 
     if (min == min->right) {    // nie było innych korzeni
-//        delete min;
         min = nullptr;
     } else {
-//        auto tmp = min;     // ustawiamy min na kolejny korzeń, w tym momencie min nie musi wskazywać na minimalny element
         min = min->right;
-//        delete tmp;
         consolidate();
     }
     node_count--;
@@ -172,19 +153,19 @@ template <typename T, typename Compare>
 bool fibonacci_heap<T, Compare>::decrease(iter i, T new_value) {
     auto node = i.getNode();
 
-    if (node->key < new_value) {
+    if (comparator(node->key, new_value)) {
         return false;
     }
 
     node->key = new_value;
     auto parent = node->parent;
 
-    if (parent != nullptr && node->key < parent->key) {
+    if (parent != nullptr && comparator(node->key, parent->key)) {
         cut(node, parent);
         cascading_cut(parent);
     }
 
-    if (node->key < min->key) {
+    if (comparator(node->key, min->key)) {
         min = node;
     }
 
@@ -231,7 +212,7 @@ bool fibonacci_heap<T, Compare>::empty() {
 template <typename T, typename Compare>
 void fibonacci_heap<T, Compare>::consolidate() {
     int max_deg = max_degree();
-    auto degrees = new ptr[max_deg]/*()*/;   // TODO sprawdzić
+    auto degrees = new ptr[max_deg];
     std::fill_n(degrees, max_deg, nullptr);
 
     auto current_root = min->left;
@@ -242,12 +223,10 @@ void fibonacci_heap<T, Compare>::consolidate() {
         current_root = next_root;
         processed_element = current_root;
         next_root = current_root->right;
-//        auto x = current_root;  // TODO chyba niepotrzebne
         auto current_degree = current_root->degree;
         while (degrees[current_degree] != nullptr) {
             auto same_degree_root = degrees[current_degree];
-            if (same_degree_root->key < current_root->key) {
-//                current_root->switch_with(same_degree_root);
+            if (comparator(same_degree_root->key, current_root->key)) {
                 auto tmp = current_root;
                 current_root = same_degree_root;
                 same_degree_root = tmp;
@@ -269,7 +248,7 @@ void fibonacci_heap<T, Compare>::consolidate() {
                 min = degrees[i]->as_list();
             } else {
                 degrees[i]->insert_before(min);
-                if (degrees[i]->key < min->key) {
+                if (comparator(degrees[i]->key, min->key)) {
                     min = degrees[i];
                 }
             }
@@ -313,5 +292,8 @@ void fibonacci_heap<T, Compare>::print(ptr root, int level) {
         tmp = tmp->right;
     } while (tmp != root);
 }
+
+template <typename T, typename Compare>
+fibonacci_heap<T, Compare>::fibonacci_heap(const Compare &comparator) : comparator(comparator) {}
 
 #endif

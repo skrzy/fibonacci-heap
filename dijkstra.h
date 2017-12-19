@@ -9,19 +9,19 @@ using namespace std;
 
 const int INF = std::numeric_limits<int>::max();
 
+struct vertex {
+    int index;
+    int value;
+
+    vertex(int index, int value) : index(index), value(value) {}
+
+    friend bool operator <(const vertex& l, const vertex& r) {
+        return l.value < r.value;
+    }
+};
+
 int* dijkstra(vector<int>& edges, int size) {
     if (size < 2) throw -1;
-
-    struct vertex {
-        int index;
-        int value;
-
-        vertex(int index, int value) : index(index), value(value) {}
-
-        bool operator <(vertex vx) {
-            return this->value < vx.value;
-        }
-    };
 
     typedef fibonacci_heap<vertex>::iter ptr;
     fibonacci_heap<vertex> Q;

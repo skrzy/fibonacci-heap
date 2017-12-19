@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include <random>
 #include <chrono>
 #include "fibonacci_heap.h"
 #include "fibonacci_heap_algorithm.h"
@@ -19,60 +18,19 @@ void test_insert() {
     heap->push(56);
     heap->push(13);
     heap->push(22);
-    heap->print();
-    cout << endl << heap->top() << endl;
+    assert(heap->top() == -45);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
+    assert(heap->top() == 2);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
+    assert(heap->top() == 13);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
+    assert(heap->top() == 22);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
+    assert(heap->top() == 22);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
+    assert(heap->top() == 56);
     heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    heap->print();
-}
-
-void test_insert2() {
-    auto heap = new fibonacci_heap<int>;
-    heap->push(13);
-    heap->push(22);
-    heap->push(56);
-    heap->push(121);
-    heap->push(22);
-    heap->push(-45);
-    heap->push(2);
-    heap->print();
-    cout << endl << heap->top() << endl;
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
-    cout << endl << heap->top() << endl;
-    heap->print();
-    heap->pop();
+    assert(heap->top() == 121);
 }
 
 void test_sort() {
@@ -97,11 +55,24 @@ void test_decrease() {
     heap->push(13);
     heap->push(22);
     heap->push(22);
-    heap->print();
     heap->pop();
-    heap->print();
     heap->decrease(el, 1);
-    heap->print();
+    assert(heap->top() == 1);
+}
+
+void test_greater() {
+    auto heap = new fibonacci_heap<int, greater<>>;
+    heap->push(2);
+    heap->push(-45);
+    heap->push(13);
+    heap->push(22);
+    assert(heap->top() == 22);
+    heap->pop();
+    assert(heap->top() == 13);
+    heap->pop();
+    assert(heap->top() == 2);
+    heap->pop();
+    assert(heap->top() == -45);
 }
 
 void sorting_performance_test() {
@@ -139,9 +110,9 @@ void sorting_performance_test() {
 
 int main() {
     test_insert();
-    test_insert2();
     test_sort();
     test_decrease();
+    test_greater();
     sorting_performance_test();
 
 
@@ -156,6 +127,7 @@ int main() {
               INF,   3,      9,     2,     0,    //e
     };
 
+    cout << endl << "dijkstra start" << endl;
     int * result = dijkstra(edges, N_VERTEXES);
     cout << "dijkstra result: " << endl;
     for (int i = 0; i < N_VERTEXES; i++) {
