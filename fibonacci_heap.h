@@ -12,10 +12,14 @@ public:
     class iter {    // TODO inna nazwa ?
         ptr node;
     public:
+        iter() {}
         iter(ptr node): node(node) {};
         ptr getNode() {
             return node;
         };
+        T getValue() {
+            return node->key;
+        }
     };
     iter push(T val);
     void pop();
@@ -153,12 +157,12 @@ void fibonacci_heap<T, Compare>::pop() {
     min->remove_from_list();
 
     if (min == min->right) {    // nie było innych korzeni
-        delete min;
+//        delete min;
         min = nullptr;
     } else {
-        auto tmp = min;     // ustawiamy min na kolejny korzeń, w tym momencie min nie musi wskazywać na minimalny element
+//        auto tmp = min;     // ustawiamy min na kolejny korzeń, w tym momencie min nie musi wskazywać na minimalny element
         min = min->right;
-        delete tmp;
+//        delete tmp;
         consolidate();
     }
     node_count--;
@@ -168,7 +172,7 @@ template <typename T, typename Compare>
 bool fibonacci_heap<T, Compare>::decrease(iter i, T new_value) {
     auto node = i.getNode();
 
-    if (new_value > node->key) {
+    if (node->key < new_value) {
         return false;
     }
 
@@ -242,7 +246,7 @@ void fibonacci_heap<T, Compare>::consolidate() {
         auto current_degree = current_root->degree;
         while (degrees[current_degree] != nullptr) {
             auto same_degree_root = degrees[current_degree];
-            if (current_root->key > same_degree_root->key) {
+            if (same_degree_root->key < current_root->key) {
 //                current_root->switch_with(same_degree_root);
                 auto tmp = current_root;
                 current_root = same_degree_root;

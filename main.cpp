@@ -40,7 +40,6 @@ void test_insert() {
     cout << endl << heap->top() << endl;
     heap->print();
     heap->pop();
-    cout << endl << heap->top() << endl;
     heap->print();
 }
 
@@ -74,7 +73,6 @@ void test_insert2() {
     cout << endl << heap->top() << endl;
     heap->print();
     heap->pop();
-    heap->print();
 }
 
 void test_sort() {
@@ -109,7 +107,6 @@ void test_decrease() {
 void sorting_performance_test() {
 
     const int N = 1000000;
-//    const int N = 11;
     default_random_engine generator;
     uniform_int_distribution<int> distribution(1, N * 1000);
 
@@ -141,24 +138,28 @@ void sorting_performance_test() {
 }
 
 int main() {
-//    test_insert();
-//    test_insert2();
-//    test_sort();
-//    test_decrease();
+    test_insert();
+    test_insert2();
+    test_sort();
+    test_decrease();
     sorting_performance_test();
 
 
     const int N_VERTEXES = 5;
 
-    int edges[] = {
-    //     a      b     c      d      e
-          0,     10,   INF,   INF,     5,    //a
-          INF,   0,      1,   INF,     2,    //b
-          INF,   INF,    0,     4,   INF,    //c
-          7,     INF,    6,     0,   INF,    //d
-          INF,   3,      9,    -2,     0,    //e
+    vector<int> edges = {
+    //FROM     a      b     c      d      e      //TO
+              0,     10,   INF,   INF,     5,    //a
+              INF,   0,      1,   INF,     2,    //b
+              INF,   INF,    0,     4,   INF,    //c
+              7,     INF,    6,     0,   INF,    //d
+              INF,   3,      9,     2,     0,    //e
     };
 
-    dijkstra(edges, N_VERTEXES);
+    int * result = dijkstra(edges, N_VERTEXES);
+    cout << "dijkstra result: " << endl;
+    for (int i = 0; i < N_VERTEXES; i++) {
+        cout << result[i] << " ";
+    }
     return 0;
 }
