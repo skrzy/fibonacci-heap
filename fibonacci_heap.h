@@ -2,6 +2,7 @@
 #define FIBONACCI_HEAP_FIBONACCI_HEAP_H
 
 #include <cmath>
+#include "fibonacci_degree_thresholds.h"
 
 template <typename T, typename Compare = std::less<T>>
 class fibonacci_heap {
@@ -51,10 +52,11 @@ private:
 
     ptr min = nullptr;
     int node_count = 0;
+//    int max_degree = 0;
 
     void consolidate();
     void link(ptr child, ptr parent);
-    int max_degree();
+    int get_max_degree();
     void cut(ptr child, ptr parent);
     void cascading_cut(ptr node);
     void print(ptr root, int level);
@@ -211,7 +213,7 @@ bool fibonacci_heap<T, Compare>::empty() {
 
 template <typename T, typename Compare>
 void fibonacci_heap<T, Compare>::consolidate() {
-    int max_deg = max_degree();
+    int max_deg = get_max_degree();
     auto degrees = new ptr[max_deg];
     std::fill_n(degrees, max_deg, nullptr);
 
@@ -267,8 +269,29 @@ void fibonacci_heap<T, Compare>::link(ptr child, ptr parent) {
 }
 
 template <typename T, typename Compare>
-int fibonacci_heap<T, Compare>::max_degree() {
-    return int(log(node_count)/log(GOLDEN_RATIO)) + 2;
+int fibonacci_heap<T, Compare>::get_max_degree() {
+    /* SPOSOB 1 */
+//    int result = 0;
+//    while (node_count > fibonacci_degree_thresholds[result]) {
+//        result++;
+//    }
+//    return result;
+
+    /* SPOSOB 2 */
+//    return int(log(node_count)/log(GOLDEN_RATIO));
+
+    /* SPOSOB 3 */
+//    if (node_count < fibonacci_degree_thresholds[max_degree]) {
+//        max_degree--;
+//    } else {
+//        while (node_count > fibonacci_degree_thresholds[max_degree + 1]) {
+//            max_degree++;
+//        }
+//    }
+//    return max_degree;
+
+    /* SPOSOB 4 */
+    return std::lower_bound(fibonacci_degree_thresholds, fibonacci_degree_thresholds + 40, node_count) - fibonacci_degree_thresholds;
 }
 
 template <typename T, typename Compare>

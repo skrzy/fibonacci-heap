@@ -133,5 +133,25 @@ int main() {
     for (int i = 0; i < N_VERTEXES; i++) {
         cout << result[i] << " ";
     }
+
+//    cout << endl;
+//
+//    const double GOLDEN_RATIO = (1 + sqrt(5)) / 2;
+//    int node_count = 0;
+//    vector<int> steps;
+//    int current_step = -1;
+//    while (current_step < 40) {
+//        int step = int(log(node_count)/log(GOLDEN_RATIO)) + 2;
+//        if (step != current_step) {
+//            steps.push_back(node_count);
+//            current_step = step;
+//        }
+//        node_count ++;
+//    }
+//
+//    for (int i = 0; i < 40; i++) {
+//        cout << steps[i] << " ";
+//    }
+//
     return 0;
 }
