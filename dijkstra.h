@@ -47,10 +47,10 @@ int* dijkstra(vector<int>& edges, int size) {
             }
         }
 
-        for(int i = 0; i < size; i++) {
-            cout << D[i].getValue().value << " ";
-        }
-        cout << endl;
+//        for(int i = 0; i < size; i++) {
+//            cout << D[i].getValue().value << " ";
+//        }
+//        cout << endl;
         Q.pop();
     }
 

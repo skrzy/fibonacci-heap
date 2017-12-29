@@ -52,7 +52,6 @@ private:
 
     ptr min = nullptr;
     int node_count = 0;
-//    int max_degree = 0;
 
     void consolidate();
     void link(ptr child, ptr parent);
@@ -60,8 +59,6 @@ private:
     void cut(ptr child, ptr parent);
     void cascading_cut(ptr node);
     void print(ptr root, int level);
-
-    const double GOLDEN_RATIO = (1 + sqrt(5)) / 2;
 };
 
 
@@ -270,17 +267,17 @@ void fibonacci_heap<T, Compare>::link(ptr child, ptr parent) {
 
 template <typename T, typename Compare>
 int fibonacci_heap<T, Compare>::get_max_degree() {
-    /* SPOSOB 1 */
+    /* METHOD 1 */
 //    int result = 0;
 //    while (node_count > fibonacci_degree_thresholds[result]) {
 //        result++;
 //    }
 //    return result;
 
-    /* SPOSOB 2 */
+    /* METHOD 2 */
 //    return int(log(node_count)/log(GOLDEN_RATIO));
 
-    /* SPOSOB 3 */
+    /* METHOD 3 */
 //    if (node_count < fibonacci_degree_thresholds[max_degree]) {
 //        max_degree--;
 //    } else {
@@ -290,7 +287,7 @@ int fibonacci_heap<T, Compare>::get_max_degree() {
 //    }
 //    return max_degree;
 
-    /* SPOSOB 4 */
+    /* METHOD 4 */
     return std::lower_bound(fibonacci_degree_thresholds, fibonacci_degree_thresholds + 40, node_count) - fibonacci_degree_thresholds;
 }
 

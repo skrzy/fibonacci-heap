@@ -106,6 +106,7 @@ void sorting_performance_test() {
     cout << "Results for " << N << " elements:" << endl;
     cout << "Fibonacci heap: " << fibonacci_heap_sort_time.count() << endl;
     cout << "Binary heap: " << binary_heap_sort_time.count() << endl;
+    cout << "Ratio (fib/bin): " << fibonacci_heap_sort_time.count() / binary_heap_sort_time.count() << endl;
 
 }
 
@@ -132,20 +133,34 @@ vector<int> * read_dijkstra_data(string filename) {
     return distances;
 }
 
+void test_dijkstra() {
+
+//    cout << endl << "dijkstra start" << endl;
+    vector<int> * distances = read_dijkstra_data("../dijkstra_data.txt");
+    int graphSize = (int)sqrt(distances->size());
+    int * result = dijkstra(*distances, graphSize);
+//    cout << "dijkstra result: " << endl;
+
+    vector<int> expectedResults = { 0, 78, 102, 171, 240, 258, 312, 352, 400, 92,
+                                    154, 230, 171, 369, 440, 444, 501, 474, 548, 695,
+                                    614, 647, 650, 733, 686, 643, 603, 747, 702, 798,
+                                    779, 837, 883, 913, 827, 704, 575, 493, 551, 544,
+                                    444, 411, 511, 503, 562, 529, 587, 719, 745, 609,
+                                    710, 449, 313, 278, 417, 460, 619, 748, 803, 850,
+                                    765 };
+
+    for (int i = 0; i < graphSize; i++) {
+//        cout << result[i] << " ";
+        assert(result[i] == expectedResults[i]);
+    }
+}
+
 int main() {
     test_insert();
     test_sort();
     test_decrease();
     test_greater();
+    test_dijkstra();
     sorting_performance_test();
-
-    cout << endl << "dijkstra start" << endl;
-    vector<int> * distances = read_dijkstra_data("../dijkstra_data.txt");
-    int graphSize = (int)sqrt(distances->size());
-    int * result = dijkstra(*distances, graphSize);
-    cout << "dijkstra result: " << endl;
-    for (int i = 0; i < graphSize; i++) {
-        cout << result[i] << " ";
-    }
     return 0;
 }
