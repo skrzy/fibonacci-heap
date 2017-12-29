@@ -2,6 +2,7 @@
 #include <cassert>
 #include <algorithm>
 #include <chrono>
+#include <fstream>
 #include "fibonacci_heap.h"
 #include "fibonacci_heap_algorithm.h"
 #include "dijkstra.h"
@@ -108,6 +109,29 @@ void sorting_performance_test() {
 
 }
 
+vector<int> * read_dijkstra_data(string filename) {
+    ifstream ifs;
+
+	ifs.open(filename);
+    if (!ifs.is_open()) {
+        cout << "file opening error" << endl;
+        throw -1;
+    }
+
+    auto distances = new vector<int>();
+    while (!ifs.eof()) {
+        string value;
+        ifs >> value;
+        if (value == "x") {
+            distances->push_back(INF);
+        } else {
+            distances->push_back(stoi(value));
+        }
+    }
+
+    return distances;
+}
+
 int main() {
     test_insert();
     test_sort();
@@ -115,43 +139,13 @@ int main() {
     test_greater();
     sorting_performance_test();
 
-
-    const int N_VERTEXES = 5;
-
-    vector<int> edges = {
-    //FROM     a      b     c      d      e      //TO
-              0,     10,   INF,   INF,     5,    //a
-              INF,   0,      1,   INF,     2,    //b
-              INF,   INF,    0,     4,   INF,    //c
-              7,     INF,    6,     0,   INF,    //d
-              INF,   3,      9,     2,     0,    //e
-    };
-
     cout << endl << "dijkstra start" << endl;
-    int * result = dijkstra(edges, N_VERTEXES);
+    vector<int> * distances = read_dijkstra_data("../dijkstra_data.txt");
+    int graphSize = (int)sqrt(distances->size());
+    int * result = dijkstra(*distances, graphSize);
     cout << "dijkstra result: " << endl;
-    for (int i = 0; i < N_VERTEXES; i++) {
+    for (int i = 0; i < graphSize; i++) {
         cout << result[i] << " ";
     }
-
-//    cout << endl;
-//
-//    const double GOLDEN_RATIO = (1 + sqrt(5)) / 2;
-//    int node_count = 0;
-//    vector<int> steps;
-//    int current_step = -1;
-//    while (current_step < 40) {
-//        int step = int(log(node_count)/log(GOLDEN_RATIO)) + 2;
-//        if (step != current_step) {
-//            steps.push_back(node_count);
-//            current_step = step;
-//        }
-//        node_count ++;
-//    }
-//
-//    for (int i = 0; i < 40; i++) {
-//        cout << steps[i] << " ";
-//    }
-//
     return 0;
 }

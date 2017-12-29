@@ -39,9 +39,10 @@ int* dijkstra(vector<int>& edges, int size) {
         for (int i = 0; i < size; i++) {
             int edgeWeight = edges[rowStart + i];
             int currentWeightToVertex = D[i].getValue().value;
-            int weightThroughNewVertex = D[min.index].getValue().value + edgeWeight;
+            int weightToNewVertex = D[min.index].getValue().value;
+            int weightThroughNewVertex = weightToNewVertex + edgeWeight;
 
-            if (edgeWeight != INF && currentWeightToVertex > weightThroughNewVertex) {
+            if (edgeWeight != INF && weightToNewVertex != INF && currentWeightToVertex > weightThroughNewVertex) {
                 Q.decrease(D[i], vertex(D[i].getValue().index, weightThroughNewVertex));
             }
         }
