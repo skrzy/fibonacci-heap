@@ -80,29 +80,23 @@ void test_greater() {
 template <typename T>
 void sorting_performance_test(vector<T>& unsorted) {
 
-//    const int N = 1000000;
-//    default_random_engine generator;
-//    uniform_int_distribution<int> distribution(1, N * 1000);
-//
-//    vector<int> unsorted;
-//    for (int i = 0; i < N; i++) {
-//        int r = distribution(generator);
-//        unsorted.push_back(r);
-//    }
-
+    /* FIBONACCI */
     fibonacci_heap<T> fh = make_fibonacci_heap<T>(unsorted.begin(), unsorted.end());
 
     high_resolution_clock::time_point start = high_resolution_clock::now();
     T* sorted = sort_fibonacci_heap(fh);
     high_resolution_clock::time_point finish = high_resolution_clock::now();
     duration<double> fibonacci_heap_sort_time = duration_cast<duration<double>>(finish - start);
+    /* --------- */
 
+    /* BINARY */
     make_heap(unsorted.begin(), unsorted.end());
 
     start = high_resolution_clock::now();
     sort_heap(unsorted.begin(), unsorted.end());
     finish = high_resolution_clock::now();
     duration<double> binary_heap_sort_time = duration_cast<duration<double>>(finish - start);
+    /* ------ */
 
     cout << "Results for " << unsorted.size() << " elements of type " << typeid(T).name() << ":" << endl;
     cout << "Fibonacci heap: " << fibonacci_heap_sort_time.count() << endl;
@@ -205,21 +199,12 @@ vector<int> * read_dijkstra_data(string filename) {
     return distances;
 }
 
-void test_dijkstra() {
+void test_dijkstra(vector<int> distances, vector<int> expectedResults) {
 
 //    cout << endl << "dijkstra start" << endl;
-    vector<int> * distances = read_dijkstra_data("../dijkstra_data.txt");
-    int graphSize = (int)sqrt(distances->size());
-    int * result = dijkstra(*distances, graphSize);
+    int graphSize = (int)sqrt(distances.size());
+    vector<int> result = dijkstra(distances, graphSize);
 //    cout << "dijkstra result: " << endl;
-
-    vector<int> expectedResults = { 0, 78, 102, 171, 240, 258, 312, 352, 400, 92,
-                                    154, 230, 171, 369, 440, 444, 501, 474, 548, 695,
-                                    614, 647, 650, 733, 686, 643, 603, 747, 702, 798,
-                                    779, 837, 883, 913, 827, 704, 575, 493, 551, 544,
-                                    444, 411, 511, 503, 562, 529, 587, 719, 745, 609,
-                                    710, 449, 313, 278, 417, 460, 619, 748, 803, 850,
-                                    765 };
 
     for (int i = 0; i < graphSize; i++) {
 //        cout << result[i] << " ";
@@ -232,18 +217,42 @@ int main() {
     test_sort();
     test_decrease();
     test_greater();
-    test_dijkstra();
+
+    test_dijkstra(*read_dijkstra_data("../dijkstra_data.txt"), {
+            0, 78, 102, 171, 240, 258, 312, 352, 400, 92,
+            154, 230, 171, 369, 440, 444, 501, 474, 548, 695,
+            614, 647, 650, 733, 686, 643, 603, 747, 702, 798,
+            779, 837, 883, 913, 827, 704, 575, 493, 551, 544,
+            444, 411, 511, 503, 562, 529, 587, 719, 745, 609,
+            710, 449, 313, 278, 417, 460, 619, 748, 803, 850,
+            765
+    });
+
+    test_dijkstra({
+            INF, 4, INF, INF, INF, INF, INF, 8, INF,
+            4, INF, 8, INF, INF, INF, INF, 11, INF,
+            INF, 8, INF, 7, INF, 4, INF, INF, 2,
+            INF, INF, 7, INF, 9, 14, INF, INF, INF,
+            INF, INF, INF, 9, INF, 10, INF, INF, INF,
+            INF, INF, 4, 14, 10, INF, 2, INF, INF,
+            INF, INF, INF, INF, INF, 2, INF, 1, 6,
+            8, 11, INF, INF, INF, INF, 1, INF, 7,
+            INF, INF, 2, INF, INF, INF, 6, 7, INF
+    }, {
+            0, 4, 12, 19, 21, 11, 9, 8, 14
+    });
+
     sorting_performance_test(*generate_ints(10000));
     sorting_performance_test(*generate_ints(1000000));
-//    sorting_performance_test(*generate_ints(10000000));
+    sorting_performance_test(*generate_ints(10000000));
     sorting_performance_test(*generate_doubles(10000));
     sorting_performance_test(*generate_doubles(1000000));
-//    sorting_performance_test(*generate_doubles(10000000));
+    sorting_performance_test(*generate_doubles(10000000));
     sorting_performance_test(*generate_chars(10000));
     sorting_performance_test(*generate_chars(1000000));
-//    sorting_performance_test(*generate_chars(10000000));
+    sorting_performance_test(*generate_chars(10000000));
     sorting_performance_test(*generate_Foos(10000));
     sorting_performance_test(*generate_Foos(1000000));
-//    sorting_performance_test(*generate_Foos(10000000));
+    sorting_performance_test(*generate_Foos(10000000));
     return 0;
 }

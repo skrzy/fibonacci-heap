@@ -11,11 +11,11 @@ private:
     typedef node* ptr;
     const Compare& comparator;
 public:
-    class iter {
+    class handler {
         ptr node;
     public:
-        iter() {}
-        iter(ptr node): node(node) {};
+        handler() {}
+        handler(ptr node): node(node) {};
         ptr getNode() {
             return node;
         };
@@ -23,10 +23,10 @@ public:
             return node->key;
         }
     };
-    iter push(T val);
+    handler push(T val);
     void pop();
     T top();
-    bool decrease(iter i, T new_value);
+    bool decrease(handler i, T new_value);
     int size();
     bool empty();
     void print();
@@ -70,11 +70,6 @@ void fibonacci_heap<T, Compare>::node::insert_before(ptr n) {
     n->right = this;
     this->left->right = n;
     this->left = n;
-
-//    this->left = n->left;
-//    this->right = n;
-//    n->left->right = this;
-//    n->left = this;
 }
 
 template <typename T, typename Compare>
@@ -101,7 +96,7 @@ typename fibonacci_heap<T, Compare>::ptr fibonacci_heap<T, Compare>::node::as_li
 }
 
 template <typename T, typename Compare>
-typename fibonacci_heap<T, Compare>::iter fibonacci_heap<T, Compare>::push(T val) {
+typename fibonacci_heap<T, Compare>::handler fibonacci_heap<T, Compare>::push(T val) {
     auto new_node = (ptr)new node(val);
 
     if (min == nullptr) {
@@ -115,7 +110,7 @@ typename fibonacci_heap<T, Compare>::iter fibonacci_heap<T, Compare>::push(T val
     }
     node_count++;
 
-    return iter(new_node);
+    return handler(new_node);
 }
 
 template <typename T, typename Compare>
@@ -147,16 +142,19 @@ void fibonacci_heap<T, Compare>::pop() {
     min->remove_from_list();
 
     if (min == min->right) {    // nie było innych korzeni
+        delete min;
         min = nullptr;
     } else {
+        auto tmp = min;
         min = min->right;
+        delete tmp;
         consolidate();
     }
     node_count--;
 }
 
 template <typename T, typename Compare>
-bool fibonacci_heap<T, Compare>::decrease(iter i, T new_value) {
+bool fibonacci_heap<T, Compare>::decrease(handler i, T new_value) {
     auto node = i.getNode();
 
     if (comparator(node->key, new_value)) {

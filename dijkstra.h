@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <set>
+#include <map>
 #include "fibonacci_heap.h"
 
 using namespace std;
@@ -20,45 +22,48 @@ struct vertex {
     }
 };
 
-int* dijkstra(vector<int>& edges, int size) {
+vector<int> dijkstra(vector<int>& edges, int size) {
     if (size < 2) throw -1;
 
-    typedef fibonacci_heap<vertex>::iter ptr;
+    typedef fibonacci_heap<vertex>::handler handler;
     fibonacci_heap<vertex> Q;
-    vector<ptr> D;
+    vector<int> D;
+    map<int, handler> unvisitedVertexes;
 
-    D.push_back(Q.push(vertex(0, 0)));
+    D.push_back(0);
+    unvisitedVertexes[0] = Q.push(vertex(0, 0));
     for (int i = 1; i < size; i++) {
-       D.push_back(Q.push(vertex(i, INF)));
+        D.push_back(INF);
+        unvisitedVertexes[i] = Q.push(vertex(i, INF));
     }
 
     while (!Q.empty()) {
         vertex min = Q.top();
+        Q.pop();
+        unvisitedVertexes.erase(unvisitedVertexes.find(min.index));
         int rowStart = min.index * size;
 
         for (int i = 0; i < size; i++) {
             int edgeWeight = edges[rowStart + i];
-            int currentWeightToVertex = D[i].getValue().value;
-            int weightToNewVertex = D[min.index].getValue().value;
+            int currentWeightToVertex = D[i];
+            int weightToNewVertex = D[min.index];
             int weightThroughNewVertex = weightToNewVertex + edgeWeight;
 
             if (edgeWeight != INF && weightToNewVertex != INF && currentWeightToVertex > weightThroughNewVertex) {
-                Q.decrease(D[i], vertex(D[i].getValue().index, weightThroughNewVertex));
+                D[i] = weightThroughNewVertex;
+                if (unvisitedVertexes.count(i)) {
+                    Q.decrease(unvisitedVertexes[i], vertex(unvisitedVertexes[i].getValue().index, weightThroughNewVertex));
+                }
             }
         }
 
 //        for(int i = 0; i < size; i++) {
-//            cout << D[i].getValue().value << " ";
+//            cout << D[i] << " ";
 //        }
 //        cout << endl;
-        Q.pop();
     }
 
-    auto result = new int[size];
-    for (int i = 0; i < size; i++) {
-        result[i] = D[i].getValue().value;
-    }
-    return result;
+    return D;
 }
 
 #endif
