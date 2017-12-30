@@ -59,15 +59,22 @@ private:
     void cut(ptr child, ptr parent);
     void cascading_cut(ptr node);
     void print(ptr root, int level);
+
+//    const double GOLDEN_RATIO = (1 + sqrt(5)) / 2;
 };
 
 
 template <typename T, typename Compare>
 void fibonacci_heap<T, Compare>::node::insert_before(ptr n) {
-    this->left = n->left;
-    this->right = n;
-    n->left->right = this;
-    n->left = this;
+    n->left = this->left;
+    n->right = this;
+    this->left->right = n;
+    this->left = n;
+
+//    this->left = n->left;
+//    this->right = n;
+//    n->left->right = this;
+//    n->left = this;
 }
 
 template <typename T, typename Compare>
@@ -81,7 +88,7 @@ void fibonacci_heap<T, Compare>::node::add_child(ptr n) {
     if (this->child == nullptr) {
         this->child = n->as_list();
     } else {
-        n->insert_before(this->child);
+        this->child->insert_before(n);
     }
     n->parent = this;
 }
@@ -101,7 +108,7 @@ typename fibonacci_heap<T, Compare>::iter fibonacci_heap<T, Compare>::push(T val
         // utworzenie listy korzeni
         min = new_node->as_list();
     } else {
-        new_node->insert_before(min);     // wstawienie do listy korzeni, przed elementem min (miejsce jest dowolne)
+        min->insert_before(new_node);     // wstawienie do listy korzeni, przed elementem min (miejsce jest dowolne)
         if (comparator(new_node->key, min->key)) {
             min = new_node;
         }
@@ -132,7 +139,7 @@ void fibonacci_heap<T, Compare>::pop() {
         do {
             child = next_child;
             next_child = child->right;
-            child->insert_before(min);
+            min->insert_before(child);
             child->parent = nullptr;
         } while (child != last_child);
     }
@@ -180,7 +187,7 @@ void fibonacci_heap<T, Compare>::cut(ptr child, ptr parent) {
     }
     child->remove_from_list();
     parent->degree--;
-    child->insert_before(min);  // dodanie do listy korzeni
+    min->insert_before(child);  // dodanie do listy korzeni
     child->parent = nullptr;
     child->mark = false;
 }
@@ -246,7 +253,7 @@ void fibonacci_heap<T, Compare>::consolidate() {
             if (min == nullptr) {
                 min = degrees[i]->as_list();
             } else {
-                degrees[i]->insert_before(min);
+                min->insert_before(degrees[i]);
                 if (comparator(degrees[i]->key, min->key)) {
                     min = degrees[i];
                 }
