@@ -23,10 +23,10 @@ public:
             return node->key;
         }
     };
-    handler push(T val);
+    handler push(T element);
     void pop();
     T top();
-    bool decrease(handler i, T new_value);
+    bool decrease(handler h, T new_value);
     int size();
     bool empty();
     void print();
@@ -96,8 +96,8 @@ typename fibonacci_heap<T, Compare>::ptr fibonacci_heap<T, Compare>::node::as_li
 }
 
 template <typename T, typename Compare>
-typename fibonacci_heap<T, Compare>::handler fibonacci_heap<T, Compare>::push(T val) {
-    auto new_node = (ptr)new node(val);
+typename fibonacci_heap<T, Compare>::handler fibonacci_heap<T, Compare>::push(T element) {
+    auto new_node = (ptr)new node(element);
 
     if (min == nullptr) {
         // utworzenie listy korzeni
@@ -154,8 +154,8 @@ void fibonacci_heap<T, Compare>::pop() {
 }
 
 template <typename T, typename Compare>
-bool fibonacci_heap<T, Compare>::decrease(handler i, T new_value) {
-    auto node = i.getNode();
+bool fibonacci_heap<T, Compare>::decrease(handler h, T new_value) {
+    auto node = h.getNode();
 
     if (comparator(node->key, new_value)) {
         return false;

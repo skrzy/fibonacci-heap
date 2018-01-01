@@ -7,6 +7,7 @@
 #include "fibonacci_heap.h"
 #include "fibonacci_heap_algorithm.h"
 #include "dijkstra.h"
+#include "test_data_generators.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -36,11 +37,11 @@ void test_insert() {
 }
 
 void test_sort() {
-    int unsorted[] = {2, -45, 121, 56, 13, 22, 22 };
-    fibonacci_heap<int> fh = make_fibonacci_heap<int>(unsorted, unsorted + 7);
+    vector<int> unsorted = *generate_ints(10000);
+    fibonacci_heap<int> fh = make_fibonacci_heap<int>(unsorted.begin(), unsorted.end());
     int* sorted = sort_fibonacci_heap(fh);
 
-    std::vector<int> v(unsorted, unsorted + 7);
+    std::vector<int> v(unsorted.begin(), unsorted.end());
     make_heap(v.begin(), v.end());
     sort_heap(v.begin(), v.end());
     for (int i = 0; i < v.size(); i++) {
@@ -78,102 +79,43 @@ void test_greater() {
 }
 
 template <typename T>
-void sorting_performance_test(vector<T>& unsorted) {
+void sorting_performance_test(vector<T>* (*generator)(int), int size) {
 
-    /* FIBONACCI */
-    fibonacci_heap<T> fh = make_fibonacci_heap<T>(unsorted.begin(), unsorted.end());
+    duration<double> fibonacci_heap_sort_time = duration<double>(0);
+    duration<double> binary_heap_sort_time = duration<double>(0);
 
-    high_resolution_clock::time_point start = high_resolution_clock::now();
-    T* sorted = sort_fibonacci_heap(fh);
-    high_resolution_clock::time_point finish = high_resolution_clock::now();
-    duration<double> fibonacci_heap_sort_time = duration_cast<duration<double>>(finish - start);
-    /* --------- */
+    for (int i = 0; i < 10; i++) {
+        vector<T>* unsorted = generator(size);
+        /* FIBONACCI */
+        high_resolution_clock::time_point start = high_resolution_clock::now();
 
-    /* BINARY */
-    make_heap(unsorted.begin(), unsorted.end());
+        fibonacci_heap<T> fh = make_fibonacci_heap<T>(unsorted->begin(), unsorted->end());
+        T* sorted = sort_fibonacci_heap(fh);
 
-    start = high_resolution_clock::now();
-    sort_heap(unsorted.begin(), unsorted.end());
-    finish = high_resolution_clock::now();
-    duration<double> binary_heap_sort_time = duration_cast<duration<double>>(finish - start);
-    /* ------ */
+        high_resolution_clock::time_point finish = high_resolution_clock::now();
+        fibonacci_heap_sort_time += duration_cast<duration<double>>(finish - start);
+        /* --------- */
 
-    cout << "Results for " << unsorted.size() << " elements of type " << typeid(T).name() << ":" << endl;
-    cout << "Fibonacci heap: " << fibonacci_heap_sort_time.count() << endl;
-    cout << "Binary heap: " << binary_heap_sort_time.count() << endl;
+        /* BINARY */
+        start = high_resolution_clock::now();
+
+        make_heap(unsorted->begin(), unsorted->end());
+        sort_heap(unsorted->begin(), unsorted->end());
+
+        finish = high_resolution_clock::now();
+        binary_heap_sort_time += duration_cast<duration<double>>(finish - start);
+        /* ------ */
+
+        delete unsorted;
+        delete[] sorted;
+    }
+
+    cout << "Results for " << size << " elements of type " << typeid(T).name() << ":" << endl;
+    cout << "Fibonacci heap: " << fibonacci_heap_sort_time.count() / 10 << endl;
+    cout << "Binary heap: " << binary_heap_sort_time.count() / 10 << endl;
     cout << "Ratio (fib/bin): " << fibonacci_heap_sort_time.count() / binary_heap_sort_time.count() << endl;
     cout << endl;
 
-}
-
-vector<int>* generate_ints(int size) {
-    default_random_engine generator;
-    uniform_int_distribution<int> distribution(1, size * 1000);
-
-    auto collection = new vector<int>();
-    for (int i = 0; i < size; i++) {
-        int r = distribution(generator);
-        collection->push_back(r);
-    }
-    return collection;
-}
-
-vector<double>* generate_doubles(int size) {
-    default_random_engine generator;
-    uniform_real_distribution<double> distribution(0, 100000);
-
-    auto collection = new vector<double>();
-    for (int i = 0; i < size; i++) {
-        double r = distribution(generator);
-        collection->push_back(r);
-    }
-    return collection;
-}
-
-vector<char>* generate_chars(int size) {
-    default_random_engine generator;
-    uniform_int_distribution<char> distribution(0, 127);
-
-    auto collection = new vector<char>();
-    for (int i = 0; i < size; i++) {
-        char r = distribution(generator);
-        collection->push_back(r);
-    }
-    return collection;
-}
-
-class Foo {
-    int bar;
-    string baz;
-
-public:
-    Foo(int bar, const string &baz) : bar(bar), baz(baz) {}
-    Foo() {}
-
-private:
-    friend bool operator <(const Foo& l, const Foo& r) {
-        return l.bar < r.bar;
-    }
-};
-
-
-vector<Foo>* generate_Foos(int size) {
-
-    string sample_strings[] = {
-            "Lorem",
-            "ipsum dolor sit amet",
-            "Aenean hendrerit neque in justo mollis, id hendrerit augue porttitor"
-    };
-
-    default_random_engine generator;
-    uniform_int_distribution<int> distribution(0, size * 1000);
-
-    auto collection = new vector<Foo>();
-    for (int i = 0; i < size; i++) {
-        int r = distribution(generator);
-        collection->push_back(Foo(r, sample_strings[r % 3]));
-    }
-    return collection;
 }
 
 vector<int> * read_dijkstra_data(string filename) {
@@ -242,17 +184,17 @@ int main() {
             0, 4, 12, 19, 21, 11, 9, 8, 14
     });
 
-    sorting_performance_test(*generate_ints(10000));
-    sorting_performance_test(*generate_ints(1000000));
-    sorting_performance_test(*generate_ints(10000000));
-    sorting_performance_test(*generate_doubles(10000));
-    sorting_performance_test(*generate_doubles(1000000));
-    sorting_performance_test(*generate_doubles(10000000));
-    sorting_performance_test(*generate_chars(10000));
-    sorting_performance_test(*generate_chars(1000000));
-    sorting_performance_test(*generate_chars(10000000));
-    sorting_performance_test(*generate_Foos(10000));
-    sorting_performance_test(*generate_Foos(1000000));
-    sorting_performance_test(*generate_Foos(10000000));
+    sorting_performance_test(generate_ints, 10000);
+    sorting_performance_test(generate_ints, 1000000);
+    sorting_performance_test(generate_ints, 10000000);
+    sorting_performance_test(generate_doubles, 10000);
+    sorting_performance_test(generate_doubles, 1000000);
+    sorting_performance_test(generate_doubles, 10000000);
+    sorting_performance_test(generate_chars, 10000);
+    sorting_performance_test(generate_chars, 1000000);
+    sorting_performance_test(generate_chars, 10000000);
+    sorting_performance_test(generate_Foos, 10000);
+    sorting_performance_test(generate_Foos, 1000000);
+    sorting_performance_test(generate_Foos, 10000000);
     return 0;
 }
